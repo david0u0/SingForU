@@ -4,13 +4,15 @@ import wave
 import pylab as pl
 import numpy as np
 import scipy.io.wavfile
+import librosa
 
 DATADIR = 'rawdata'
 PROCESSDIR = 'processed_data'
+MAXWORDS = 2
 WINDOW = 100
 MOVINGAVG = 30
 INTERVAL = 0.1 # at least 0.1 sec a word?
-THRESHOLD = 0.75
+THRESHOLD = 0.8
 OFFSET = 1000 # moving average induces a phase shift
 
 def getEnergy(sig): #sig be a numpy array
@@ -43,7 +45,7 @@ def findMin(a, left, right):
             m = a[i]
             min_i = i
     return min_i
-def breakDown(wave_data):        
+def breakDown(wave_data, dovisualize=False):        
     energy = []
     for i in range(0, len(wave_data), WINDOW):
         e = 0
@@ -69,7 +71,8 @@ def breakDown(wave_data):
                 bp += [i*WINDOW-OFFSET]
                 i += interval
         i += 1
-    visualize(energy, threshold, bp, framerate)
+    if dovisualize:
+        visualize(energy, threshold, bp, framerate)
     return bp
 
 if __name__ == '__main__':
@@ -96,12 +99,18 @@ if __name__ == '__main__':
         #if nchannels == 2:
         #    wave_data = wave_data[0]
         bp = breakDown(wave_data)
-        bp += [len(wave_data)]
+        bp = [0] + bp + [len(wave_data)]
         os.makedirs(os.path.join(PROCESSDIR, name))
-        left = 0
-        for i, b in enumerate(bp):
-            out = np.int16(wave_data[left:b])
-            t_name = os.path.join(PROCESSDIR, name, str(i)+'.'+ext)      
-            scipy.io.wavfile.write(t_name, framerate, out)
-            left = b
+        for i in range(0, len(bp)-1):
+            left = bp[i]
+            for j in range(1, MAXWORDS+1):
+                if i+j >= len(bp):
+                    break
+                right = bp[i+j]
+                out = np.int16(wave_data[left:right])
+                t_name = os.path.join(PROCESSDIR, name, "%d_%d_%d.%s" % (left, right, j, ext))      
+                scipy.io.wavfile.write(t_name, framerate, out)
+                t = librosa.feature.mfcc(out, framerate)
+                #print(t)
+            
         print("processing %s DONE!" % name)
