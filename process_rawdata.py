@@ -8,11 +8,12 @@ import librosa
 
 DATADIR = 'rawdata'
 PROCESSDIR = 'processed_data'
-MAXWORDS = 2
+MAXWORDS = 1
+NMFCC = 55
 WINDOW = 100
 MOVINGAVG = 30
-INTERVAL = 0.1 # at least 0.1 sec a word?
-THRESHOLD = 0.8
+INTERVAL = 0.12 # at least 0.1 sec a word?
+THRESHOLD = 0.85
 OFFSET = 1000 # moving average induces a phase shift
 
 def getEnergy(sig): #sig be a numpy array
@@ -94,10 +95,11 @@ if __name__ == '__main__':
         str_data = f.readframes(nframes)
         f.close()
         wave_data = np.fromstring(str_data, dtype=np.short)
-        #wave_data.shape = -1, 2
-        #wave_data = wave_data.T
-        #if nchannels == 2:
-        #    wave_data = wave_data[0]
+        if nchannels == 2:
+            wave_data.shape = -1, 2
+            wave_data = wave_data.T
+            wave_data = wave_data[0]
+
         bp = breakDown(wave_data)
         bp = [0] + bp + [len(wave_data)]
         os.makedirs(os.path.join(PROCESSDIR, name))
@@ -108,9 +110,12 @@ if __name__ == '__main__':
                     break
                 right = bp[i+j]
                 out = np.int16(wave_data[left:right])
-                t_name = os.path.join(PROCESSDIR, name, "%d_%d_%d.%s" % (left, right, j, ext))      
-                scipy.io.wavfile.write(t_name, framerate, out)
-                t = librosa.feature.mfcc(out, framerate)
-                #print(t)
-            
+                t_name = os.path.join(PROCESSDIR, name, "%d_%d_%d" % (left, right, j))      
+                scipy.io.wavfile.write(t_name+'.'+ext, framerate, out)
+                mfcc = librosa.feature.mfcc(out, framerate, n_mfcc=NMFCC)
+                f = open(t_name, 'w')
+                for e in mfcc:
+                    f.write(','.join([str(g) for g in e]))
+                    f.write('\n')
+                f.close()
         print("processing %s DONE!" % name)
