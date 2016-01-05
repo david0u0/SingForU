@@ -24,7 +24,9 @@ def getMFCC(y, framerate, path=None):
 def getDist(p1, p2):
 	#Both of dimention NMFCC
 	t = 0
-	for i in range(0, NMFCC):
+	for i in range(1, NMFCC-1):
+		a = (p1[i]-p1[i-1] + (p1[i+1]-p1[i-1])/2)/2
+		b = (p2[i]-p2[i-1] + (p2[i+1]-p2[i-1])/2)/2
 		t += (p1[i]-p2[i])**2
 	return t**0.5
 
@@ -38,7 +40,7 @@ def getDTW(mfcc1, mfcc2): #tail free!
 		mini = min(mini, d[i][m-1])
 	for i in range(0, m):
 		mini = min(mini, d[n-1][i])
-	return d[n-1][m-1]/(m+n)
+	return mini/(m+n)
 
 def recurdiveGetDTW(i, j, d, mfcc1, mfcc2):
 	if d[i][j] != 0:

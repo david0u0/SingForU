@@ -1,3 +1,4 @@
 processed_data
 *.pyc
 test*
+output/
