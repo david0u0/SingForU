@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+import scipy
 import librosa
 import numpy as np
 import wave
@@ -34,26 +35,36 @@ def getDist(p1, p2):
 def getDTW(mfcc1, mfcc2): #tail free!
 	n = len(mfcc1.T)
 	m = len(mfcc2.T)
-	d = np.zeros(shape=(n, m))
-	recurdiveGetDTW(n-1, m-1, d, mfcc1, mfcc2)
+	d = np.zeros(shape=(n, m))-1
+	cnt = np.zeros(shape=(n, m))-1
+	recurdiveGetDTW(n-1, m-1, d, cnt, mfcc1, mfcc2)
+	
 	mini = np.inf
 	for i in range(0, n):
-		mini = min(mini, d[i][m-1])
+		mini = min(mini, d[i][m-1]/cnt[i][m-1])
 	for i in range(0, m):
-		mini = min(mini, d[n-1][i])
-	return mini/(m+n)
+		mini = min(mini, d[n-1][i]/cnt[n-1][i])
+	return mini
 
-def recurdiveGetDTW(i, j, d, mfcc1, mfcc2):
-	if d[i][j] != 0:
-		return d[i][j]
-	if i == j and i == 0:
-		return 0
+def recurdiveGetDTW(i, j, d, cnt, mfcc1, mfcc2):
 	if i < 0 or j < 0:
 		return np.inf
-	a = recurdiveGetDTW(i-1, j, d, mfcc1, mfcc2)
-	b = recurdiveGetDTW(i, j-1, d, mfcc1, mfcc2)
-	c = recurdiveGetDTW(i-1, j-1, d, mfcc1, mfcc2)
+	if i == j and i == 0:
+		cnt[0][0] = 0
+		return 0
+	if d[i][j] > 0:
+		return d[i][j]
+	a = recurdiveGetDTW(i-1, j, d, cnt, mfcc1, mfcc2)
+	b = recurdiveGetDTW(i, j-1, d, cnt, mfcc1, mfcc2)
+	c = recurdiveGetDTW(i-1, j-1, d, cnt, mfcc1, mfcc2)
 	d[i][j] = min(a, b, c) + getDist(mfcc1.T[i], mfcc2.T[j])
+	index = [a, b, c].index(min(a, b, c))
+	if index == 0:
+		cnt[i][j] = cnt[i-1][j] + 1
+	elif index == 1:
+		cnt[i][j] = cnt[i][j-1] + 1
+	else:
+		cnt[i][j] = cnt[i-1][j-1] + 1
 	return d[i][j]
 
 def classify(chars, char):
