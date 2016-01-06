@@ -4,8 +4,30 @@ import librosa
 import numpy as np
 import wave
 
-NMFCC = 39
-K = 20
+NMFCC = 13
+K = 7
+
+class Char:
+	def __init__(self, name, url):
+		self.name = name.encode('big5')
+		self.url = url
+		(y, fs) = getSignal(url)	
+		self.mfcc = getMFCC(y, fs)
+	@staticmethod
+	def createFromSig(y, fs):
+		t = type('test', (), {})()
+		t.name = 'unknown'
+		t.url = ''
+		t.mfcc = getMFCC(y, fs)
+		return t
+
+class CharPair:
+	def __init__(self, c1, c2):
+		self.label = (c1.name == c2.name)
+		self.url1 = c1.url
+		self.url2 = c2.url
+		self.dist = getDTW(c1.mfcc, c2.mfcc)
+		print("%f %s %s %s" % (self.dist, c1.name, c2.name, self.label))
 
 def getSignal(url):
 	f = wave.open(url, "rb")
@@ -32,21 +54,21 @@ def getDist(p1, p2):
 		t += (a-b)**2
 	return t**0.5
 
-def getDTW(mfcc1, mfcc2): #tail free!
+def getDTW(mfcc1, mfcc2): #tail free!?
 	n = len(mfcc1.T)
 	m = len(mfcc2.T)
 	d = np.zeros(shape=(n, m))-1
 	cnt = np.zeros(shape=(n, m))-1
-	recurdiveGetDTW(n-1, m-1, d, cnt, mfcc1, mfcc2)
-	
+	recursiveGetDTW(n-1, m-1, d, cnt, mfcc1, mfcc2)
+
 	mini = np.inf
 	for i in range(0, n):
-		mini = min(mini, d[i][m-1]/cnt[i][m-1])
+		mini = min(mini, d[i][m-1])
 	for i in range(0, m):
-		mini = min(mini, d[n-1][i]/cnt[n-1][i])
+		mini = min(mini, d[n-1][i])
 	return mini
 
-def recurdiveGetDTW(i, j, d, cnt, mfcc1, mfcc2):
+def recursiveGetDTW(i, j, d, cnt, mfcc1, mfcc2):
 	if i < 0 or j < 0:
 		return np.inf
 	if i == j and i == 0:
@@ -54,11 +76,19 @@ def recurdiveGetDTW(i, j, d, cnt, mfcc1, mfcc2):
 		return 0
 	if d[i][j] > 0:
 		return d[i][j]
-	a = recurdiveGetDTW(i-1, j, d, cnt, mfcc1, mfcc2)
-	b = recurdiveGetDTW(i, j-1, d, cnt, mfcc1, mfcc2)
-	c = recurdiveGetDTW(i-1, j-1, d, cnt, mfcc1, mfcc2)
-	d[i][j] = min(a, b, c) + getDist(mfcc1.T[i], mfcc2.T[j])
-	index = [a, b, c].index(min(a, b, c))
+
+	a = recursiveGetDTW(i-1, j, d, cnt, mfcc1, mfcc2)
+	b = recursiveGetDTW(i, j-1, d, cnt, mfcc1, mfcc2)
+	c = recursiveGetDTW(i-1, j-1, d, cnt, mfcc1, mfcc2)
+	dist = getDist(mfcc1.T[i], mfcc2.T[j])
+	if i > 0:
+		a = (cnt[i-1][j]*a + dist)/(1+cnt[i-1][j])
+		if j > 0:
+			c = (cnt[i-1][j-1]*c + dist)/(1+cnt[i-1][j-1])
+	if j > 0:
+		b = (cnt[i][j-1]*b + dist)/(1+cnt[i][j-1])
+	d[i][j] = min(a, b, c)
+	index = [a, b, c].index(d[i][j])
 	if index == 0:
 		cnt[i][j] = cnt[i-1][j] + 1
 	elif index == 1:
@@ -66,6 +96,21 @@ def recurdiveGetDTW(i, j, d, cnt, mfcc1, mfcc2):
 	else:
 		cnt[i][j] = cnt[i-1][j-1] + 1
 	return d[i][j]
+
+def kNN(chars, char):
+	buff = [[np.inf, None] for i in range (0, K)]
+	for c in chars:
+		if c.url == char.url:
+			continue
+		dist = getDTW(c.mfcc, char.mfcc)
+		maxb = max(buff, key=lambda x : x[0])
+		if(maxb[0] > dist):
+			maxb[0] = dist
+			maxb[1] = c.name
+	buff = sorted(buff, key=lambda x : x[0])
+	for b in buff:
+		print("%s, %f" % (b[1], b[0]))
+	print(char.name)
 
 def classify(chars, char):
 	d = {}

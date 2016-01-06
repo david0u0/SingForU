@@ -13,7 +13,7 @@ NMFCC = 55
 WINDOW = 100
 MOVINGAVG = 30
 INTERVAL = 0.12 # at least 0.1 sec a word?
-THRESHOLD = 0.85
+THRESHOLD = 0.75
 OFFSET = 1000 # moving average induces a phase shift
 
 def getEnergy(sig): #sig be a numpy array
@@ -46,7 +46,7 @@ def findMin(a, left, right):
             m = a[i]
             min_i = i
     return min_i
-def breakDown(wave_data, dovisualize=False):        
+def breakDown(wave_data, fs, dovisualize=False):        
     energy = []
     for i in range(0, len(wave_data), WINDOW):
         e = 0
@@ -56,7 +56,7 @@ def breakDown(wave_data, dovisualize=False):
             e = getEnergy(wave_data[i:i+WINDOW])
         energy += [e]
     energy = movingAvg(energy, MOVINGAVG)
-    interval = int(framerate*INTERVAL/WINDOW)
+    interval = int(fs*INTERVAL/WINDOW)
     threshold = getThreshold(energy, interval)
         
     bp = []
@@ -100,7 +100,7 @@ if __name__ == '__main__':
             wave_data = wave_data.T
             wave_data = wave_data[0]
 
-        bp = breakDown(wave_data)
+        bp = breakDown(wave_data, framerate)
         bp = [0] + bp + [len(wave_data)]
         os.makedirs(os.path.join(PROCESSDIR, name))
         for i in range(0, len(bp)-1):
