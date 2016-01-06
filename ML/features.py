@@ -101,4 +101,5 @@ def readFeats():
 		labels += [int(a[0])]
 		feat = [float(t) for t in a[1:-1]]
 		feats += [feat]
+		
 	return (feats, labels)
