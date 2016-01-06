@@ -57,14 +57,22 @@ def recurdiveGetDTW(i, j, d, mfcc1, mfcc2):
 	return d[i][j]
 
 def classify(chars, char):
-	buff = [[np.inf, None] for i in range (0, K)]
+	d = {}
+	cnt = 0
+	name = None
 	for c in chars:
 		if c.url == char.url:
 			continue
 		dist = getDTW(c.mfcc, char.mfcc)
-		maxb = max(buff, key=lambda x : x[0])
-		if(maxb[0] > dist):
-			maxb[0] = dist
-			maxb[1] = c.name
-	for b in buff:
-		print("%s, %f" % (b[1], b[0]))
+		if c.name not in d:
+			if name:
+				d[name] /= cnt
+			d[c.name] = 0
+			cnt = 0
+		cnt += 1
+		name = c.name
+		d[name] += dist
+
+	for k in d:
+		print("%s, %f" % (k, d[k]))
+	print("%s, %f" % (char.name, d[char.name]))

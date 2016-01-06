@@ -28,6 +28,6 @@ for d in listdir('.'):
 	chdir('..')
 chdir('..')
 
-for char in chars:
-	print(char.name)
-	kNN(chars, char)
+#for char in chars:
+#	print(char.name)
+classify(chars, chars[3])
