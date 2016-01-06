@@ -26,8 +26,8 @@ for d in listdir('.'):
 		char = Char(d, path.abspath(url))
 		chars += [char]
 	chdir('..')
-pairs = []
-for i in range(0, len(chars)):
-	for j in range(i+1, len(chars)):
-		pair = CharPair(chars[i], chars[j])
-		pairs += [pair]
+chdir('..')
+
+for char in chars:
+	print(char.name)
+	kNN(chars, char)

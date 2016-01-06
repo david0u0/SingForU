@@ -4,6 +4,7 @@ import numpy as np
 import wave
 
 NMFCC = 39
+K = 20
 
 def getSignal(url):
 	f = wave.open(url, "rb")
@@ -27,7 +28,7 @@ def getDist(p1, p2):
 	for i in range(1, NMFCC-1):
 		a = (p1[i]-p1[i-1] + (p1[i+1]-p1[i-1])/2)/2
 		b = (p2[i]-p2[i-1] + (p2[i+1]-p2[i-1])/2)/2
-		t += (p1[i]-p2[i])**2
+		t += (a-b)**2
 	return t**0.5
 
 def getDTW(mfcc1, mfcc2): #tail free!
@@ -54,3 +55,16 @@ def recurdiveGetDTW(i, j, d, mfcc1, mfcc2):
 	c = recurdiveGetDTW(i-1, j-1, d, mfcc1, mfcc2)
 	d[i][j] = min(a, b, c) + getDist(mfcc1.T[i], mfcc2.T[j])
 	return d[i][j]
+
+def classify(chars, char):
+	buff = [[np.inf, None] for i in range (0, K)]
+	for c in chars:
+		if c.url == char.url:
+			continue
+		dist = getDTW(c.mfcc, char.mfcc)
+		maxb = max(buff, key=lambda x : x[0])
+		if(maxb[0] > dist):
+			maxb[0] = dist
+			maxb[1] = c.name
+	for b in buff:
+		print("%s, %f" % (b[1], b[0]))
