@@ -2,6 +2,9 @@ from process_rawdata import *
 from features import *
 import sys
 from os import path, mkdir, chdir, listdir
+import sys
+from subprocess import call
+sys.path.append('../ML')
 
 OUTDIR = 'output'
 
@@ -33,9 +36,13 @@ if nchannels == 2:
 
 bp = breakDown(wave_data, framerate)
 bp = bp + [len(wave_data)]
-
+chdir(OUTDIR)
 for i in range(0, len(bp)-1):
 	y = wave_data[bp[i]:bp[i+1]]
+	if not voiceActivity(y, framerate):
+		continue # or add some cirtain thing
 	char = Char.createFromSig(y, framerate)
-	kNN(chars, char)
+	url = kNN(chars, char)
+	call(['cp', url, 'matched%d.wav' % i])
+	scipy.io.wavfile.write('%d.wav'%i, framerate, y)
 	

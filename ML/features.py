@@ -106,12 +106,23 @@ def kNN(chars, char):
 		maxb = max(buff, key=lambda x : x[0])
 		if(maxb[0] > dist):
 			maxb[0] = dist
-			maxb[1] = c.name
-	buff = sorted(buff, key=lambda x : x[0])
+			maxb[1] = c
+	d = {}
+	urls = {}
 	for b in buff:
-		print("%s, %f" % (b[1], b[0]))
-	print(char.name)
-
+		(name, url) = (b[1].name, b[1].url)
+		if name not in d:
+			d[name] = 0
+			urls[name] = url
+		d[name] += 1.0/b[0]
+	maxd = -np.inf
+	maxkey = None
+	for key in d:
+		if(d[key] > maxd):
+			maxd = d[key]
+			maxkey = key
+	print(key)
+	return urls[key]
 def classify(chars, char):
 	d = {}
 	cnt = 0
@@ -132,3 +143,6 @@ def classify(chars, char):
 	for k in d:
 		print("%s, %f" % (k, d[k]))
 	print("%s, %f" % (char.name, d[char.name]))
+
+def voiceActivity(y, framerate):
+	return True
