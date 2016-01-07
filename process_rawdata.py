@@ -12,7 +12,8 @@ MAXWORDS = 1
 NMFCC = 55
 WINDOW = 100
 MOVINGAVG = 30
-INTERVAL = 0.12 # at least 0.1 sec a word?
+INTERVAL = 0.2 # at least 0.1 sec a word?
+MAX_INTERVAL = 0.8
 THRESHOLD = 0.75
 OFFSET = 1000 # moving average induces a phase shift
 
@@ -57,23 +58,27 @@ def breakDown(wave_data, fs, dovisualize=False):
         energy += [e]
     energy = movingAvg(energy, MOVINGAVG)
     interval = int(fs*INTERVAL/WINDOW)
+    max_interval = int(fs*MAX_INTERVAL/WINDOW)
     threshold = getThreshold(energy, interval)
-        
-    bp = []
+    bp = [0]
     i = interval/2
     while(i < len(energy) - interval/2):
-        if(energy[i] < threshold[i]):
+        if(i-bp[-1] > max_interval):
+            bp += [i]
+            i += interval
+        elif(energy[i] < threshold[i]):
             min_i = findMin(energy, i-interval/2, i+interval/2)
             if(min_i == i):
-                bp += [i*WINDOW-OFFSET]
+                bp += [i]
                 i += interval
             elif(min_i > i):
                 i = min_i
-                bp += [i*WINDOW-OFFSET]
+                bp += [i]
                 i += interval
         i += 1
+    bp = [b*WINDOW-OFFSET for b in bp]
     if dovisualize:
-        visualize(energy, threshold, bp, framerate)
+        visualize(energy, threshold, bp, fs)
     return bp
 
 if __name__ == '__main__':

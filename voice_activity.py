@@ -85,4 +85,4 @@ def isActive(active): #for a char
 	for a in active:
 		if a:
 			cnt += 1
-	return (cnt > len(active)/3)
+	return (cnt > LEN*0.2)
