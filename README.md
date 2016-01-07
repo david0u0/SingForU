@@ -5,3 +5,4 @@ Make the president of the United State sing for you!!
 reference
 http://research.ijcaonline.org/volume40/number3/pxc3877167.pdf
 http://statweb.stanford.edu/~dlsun/papers/voice_activity_detection_full.pdf
+http://ms12.voip.edu.tw/~paul/Papper/Steganography/iLBC/%28VAD%29Real-Time_VAD_Algorithm.pdf

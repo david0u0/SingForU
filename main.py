@@ -1,10 +1,10 @@
+from videoMergeAPI import *
+from voice_activity import getActivity, isActive
 from process_rawdata import *
+import sys
+sys.path.append('ML')
 from features import *
-import sys
 from os import path, mkdir, chdir, listdir
-import sys
-from subprocess import call
-sys.path.append('../ML')
 
 OUTDIR = 'output'
 
@@ -34,12 +34,17 @@ if nchannels == 2:
     wave_data = wave_data.T
     wave_data = wave_data[0]
 
+print('===')
+(active, window) = getActivity(wave_data, framerate)
+
 bp = breakDown(wave_data, framerate)
 bp = bp + [len(wave_data)]
 chdir(OUTDIR)
 for i in range(0, len(bp)-1):
 	y = wave_data[bp[i]:bp[i+1]]
-	if not voiceActivity(y, framerate):
+	a = active[int(bp[i]/window):int(bp[i+1]/window)]
+	if not isActive(a):
+		print("%d inactive" % i)
 		continue # or add some cirtain thing
 	char = Char.createFromSig(y, framerate)
 	url = kNN(chars, char)

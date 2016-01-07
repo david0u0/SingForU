@@ -143,6 +143,3 @@ def classify(chars, char):
 	for k in d:
 		print("%s, %f" % (k, d[k]))
 	print("%s, %f" % (char.name, d[char.name]))
-
-def voiceActivity(y, framerate):
-	return True
