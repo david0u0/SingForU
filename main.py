@@ -15,7 +15,6 @@ if not path.exists(OUTDIR):
 chars = []
 chdir('ML/data')
 for d in listdir('.'):
-	d = d.decode('big5')
 	chdir(d)
 	for url in listdir('.'):
 		char = Char(d, path.abspath(url))
@@ -47,7 +46,7 @@ for i in range(0, len(bp)-1):
 		print("%d inactive" % i)
 		continue # or add some cirtain thing
 	char = Char.createFromSig(y, framerate)
-	url = kNN(chars, char)
-	call(['cp', url, 'matched%d.wav' % i])
+	c = kNN(chars, char)
+	call(['cp', c.url, 'matched%d.wav' % i])
 	scipy.io.wavfile.write('%d.wav'%i, framerate, y)
-	
+	print("%d matched" % i)

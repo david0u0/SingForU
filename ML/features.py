@@ -3,6 +3,7 @@ import scipy
 import librosa
 import numpy as np
 import wave
+from os import path
 
 NMFCC = 13
 K = 7
@@ -13,6 +14,15 @@ class Char:
 		self.url = url
 		(y, fs) = getSignal(url)	
 		self.mfcc = getMFCC(y, fs)
+		self.fs = fs
+	def getFilename(self):
+		return path.split(self.url)[-1]
+	def getVideoInfo(self):
+		p = self.getFilename()
+		[start, end, video] = p.split('_')
+		start = float(start)/self.fs
+		end = float(end)/self.fs
+		return (start, end, video+'.mp4')
 	@staticmethod
 	def createFromSig(y, fs):
 		t = type('test', (), {})()
@@ -108,12 +118,12 @@ def kNN(chars, char):
 			maxb[0] = dist
 			maxb[1] = c
 	d = {}
-	urls = {}
+	chars = {}
 	for b in buff:
-		(name, url) = (b[1].name, b[1].url)
+		name = b[1].name
 		if name not in d:
 			d[name] = 0
-			urls[name] = url
+			chars[name] = b[1]
 		d[name] += 1.0/b[0]
 	maxd = -np.inf
 	maxkey = None
@@ -121,8 +131,7 @@ def kNN(chars, char):
 		if(d[key] > maxd):
 			maxd = d[key]
 			maxkey = key
-	print(key)
-	return urls[key]
+	return chars[key]
 def classify(chars, char):
 	d = {}
 	cnt = 0

@@ -6,7 +6,6 @@ from features import *
 chars = []
 chdir('data')
 for d in listdir('.'):
-	d = d.decode('big5')
 	chdir(d)
 	for url in listdir('.'):
 		char = Char(d, path.abspath(url))

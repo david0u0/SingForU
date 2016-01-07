@@ -48,6 +48,7 @@ def getActivity(y, fs, visualize=False):
 			start = -1
 	if visualize:
 		time = np.arange(0, len(energy)) * LEN
+		pl.figure()
 		pl.subplot(513)
 		pl.plot(time, energy)
 		pl.title('Energy')
@@ -58,14 +59,14 @@ def getActivity(y, fs, visualize=False):
 		#pl.plot(time, smf)
 		#pl.title('SMF')
 		pl.subplot(515)
-		active = [100 if a else 0 for a in active]
-		active[0] = 150
-		active[-1] = -50
-		pl.plot(time, active)
+		t = [100 if a else 0 for a in active]
+		t[0] = 150
+		t[-1] = -50
+		pl.plot(time, t)
 		pl.subplot(514)
 		time = np.arange(0, len(y))*1.0/fs
 		pl.plot(time, y)
-		pl.show()
+		pl.show(block=False)
 	return (active, window)
 
 def getEnergy(y):

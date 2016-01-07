@@ -34,11 +34,12 @@ def visualize(energy, threshold, bp, framerate):
     for b in bp:
         b = b/WINDOW
         tmp[b] = 100
+    pl.figure()
     pl.subplot(211)
     pl.plot(time, energy, time, threshold)
     pl.subplot(212)
     pl.plot(time, tmp)
-    pl.show()
+    pl.show(block=False)
 def findMin(a, left, right):
     m = a[left]
     min_i = left
