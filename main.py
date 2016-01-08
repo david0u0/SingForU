@@ -17,9 +17,9 @@ chars = getCharArray('ML')
 (wave_data, framerate) = getSignal(arg)
 
 print('===')
-(active, window) = getActivity(wave_data, framerate)
+(active, window) = getActivity(wave_data, framerate, True)
 
-bp = breakDown(wave_data, framerate)
+bp = breakDown(wave_data, framerate, True)
 bp = bp + [len(wave_data)]
 chdir(OUTDIR)
 clip_list = []

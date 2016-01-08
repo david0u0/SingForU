@@ -140,7 +140,7 @@ def classify(chars, char):
 def getCharArray(url):
 	f = open(path.join(url, 'label'))
 	s = f.read()
-	a = s.split(' ')
+	a = s.split()
 	chars = []
 	for i in range(0, len(a), 2):
 		fn = path.join(url, 'data', a[i])

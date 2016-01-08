@@ -42,7 +42,7 @@ def visualize(energy, threshold, bp, framerate):
     pl.plot(time, energy, time, threshold)
     pl.subplot(212)
     pl.plot(time, tmp)
-    pl.show(block=False)
+    pl.show()
 def findMin(a, left, right):
     m = a[left]
     min_i = left
@@ -87,7 +87,7 @@ def breakDown(wave_data, fs, dovisualize=False):
 
 if __name__ == '__main__':
     if not os.path.exists(PROCESSDIR):
-        mkdir(PROCESSDIR)
+        os.mkdir(PROCESSDIR)
     data = []
     for (dirpath, dirnames, filenames) in os.walk(DATADIR):
         data.extend(filenames)

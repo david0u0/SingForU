@@ -2,6 +2,7 @@ clear all
 clc
 load distmtx.mat
 load urls
+threshold = 21;
 
 % convert back to the format that linkage can process
 [numNode, ~] = size(distmtx);
@@ -9,9 +10,7 @@ distmtx = squareform(distmtx);
 
 % construct the hierarchical cluster tree
 Z = linkage(distmtx, 'complete');
-% dendrogram(Z,0)
-
-
+dendrogram(Z,0)
 
 % Initialize the cluster array
 cluster_arr(1,numNode) = Cluster(0,0,0);
@@ -23,7 +22,6 @@ end
 
 ii=1;
 top_idx = numNode;
-threshold = 21;
 
 [~,sizeC] = size(cluster_arr);
 while sizeC >= threshold
@@ -52,11 +50,9 @@ while sizeC >= threshold
     ii = ii + 1;
 end
 
-
-
 label = 1;
 [~,sizeC] = size(cluster_arr);
-fileID = fopen('label.txt','w');
+fileID = fopen('../label','w');
 for ii=1:sizeC
    if cluster_arr(ii).valid
        member_list = cluster_arr(ii).member_id;

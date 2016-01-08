@@ -2,4 +2,3 @@ segmented_data/
 *.pyc
 test*
 output/
-*.mat
