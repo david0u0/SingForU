@@ -1,18 +1,17 @@
+%% reset
 clear all
 clc
 load distmtx.mat
 load urls
-
+%% get distant matrix
 % convert back to the format that linkage can process
 [numNode, ~] = size(distmtx);
 distmtx = squareform(distmtx);
 
 % construct the hierarchical cluster tree
 Z = linkage(distmtx, 'complete');
-% dendrogram(Z,0)
 
-
-
+%% initialize cluster array
 % Initialize the cluster array
 cluster_arr(1,numNode) = Cluster(0,0,0);
 for i=1:numNode
@@ -21,15 +20,21 @@ for i=1:numNode
    cluster_arr(i).valid = 1;
 end
 
+
+%% loop to get the result
 ii=1;
 top_idx = numNode;
 threshold = 21;
+max_dist = 0;
 
 [~,sizeC] = size(cluster_arr);
 while sizeC >= threshold
     T = Z(ii,:);
     top_idx = top_idx + 1;
     
+    if T(3) > max_dist
+       max_dist = T(3); 
+    end
     % pop
     clusterA = cluster_arr(T(1));
     clusterB = cluster_arr(T(2));
@@ -53,7 +58,7 @@ while sizeC >= threshold
 end
 
 
-
+%% output labeled data
 label = 1;
 [~,sizeC] = size(cluster_arr);
 fileID = fopen('label.txt','w');
@@ -62,8 +67,17 @@ for ii=1:sizeC
        member_list = cluster_arr(ii).member_id;
        [~,length] = size(member_list);
        for jj=1:length
-           fprintf(fileID, '%s %d ', urls(member_list(jj),:), label);
+           fprintf(fileID, '%s %d ', strtrim( urls(member_list(jj),:) ), label);
        end
        label = label + 1;
    end
 end
+
+
+%% plot the result
+dendrogram(Z,0)
+hold on
+a = xlim;
+plot([a(1),a(2)],[max_dist,max_dist],'r-')
+title('Dendrogram');
+hold off
