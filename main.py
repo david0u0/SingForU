@@ -9,7 +9,6 @@ from os import path, mkdir, chdir, listdir
 OUTDIR = 'output'
 
 arg = sys.argv[-1]
-visualize = (len(sys.argv) > 3)
 if not path.exists(OUTDIR):
 	mkdir(OUTDIR)
 
@@ -18,9 +17,9 @@ chars = getCharArray('ML')
 (wave_data, framerate) = getSignal(arg)
 
 print('===')
-(active, window) = getActivity(wave_data, framerate, visualize)
+(active, window) = getActivity(wave_data, framerate, True)
 
-bp = breakDown(wave_data, framerate, visualize)
+bp = breakDown(wave_data, framerate, True)
 bp = bp + [len(wave_data)]
 chdir(OUTDIR)
 clip_list = []
@@ -32,7 +31,7 @@ for i in range(0, len(bp)-1):
 		continue # or add some cirtain thing
 	char = Char.createFromSig(y, framerate)
 	c = classify(chars, char)
-	clip_list += [c.getVideoInfo()]
+	clip_list += [c.getVideoInfo().append(bp[i])]
 	call(['cp', c.url, 'matched%d.wav' % i])
 	scipy.io.wavfile.write('%d.wav'%i, framerate, y)
 	print("%d matched" % i)

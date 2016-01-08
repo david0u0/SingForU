@@ -23,7 +23,7 @@ class Char:
 		start = float(start)/self.fs
 		end = float(end)/self.fs
 		video = video.split('.')[0] + '.mp4'
-		return (start, end, video)
+		return [start, end, video]
 	@staticmethod
 	def createFromSig(y, fs):
 		t = type('Char', (), {})()
@@ -117,7 +117,6 @@ def recursiveGetDTW(i, j, d, mfcc1, mfcc2, wall):
 
 def classify(chars, char):
 	d = Dictionary()
-	cnt = 0
 	label = None
 	for c in chars:
 		if c.url == char.url:
