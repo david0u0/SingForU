@@ -136,3 +136,15 @@ def classify(chars, char):
 		dist = getDTW(c.mfcc, char.mfcc)
 		d.addChar(c, dist)
 	return d.getClassifiedChar()
+
+def getCharArray(url):
+	f = open(path.join(url, 'label'))
+	s = f.read()
+	a = s.split(' ')
+	chars = []
+	for i in range(0, len(a), 2):
+		fn = path.join(url, 'data', a[i])
+		p = path.abspath(fn)
+		label = int(a[i+1])
+		chars += [Char(label, p)]
+	return chars
