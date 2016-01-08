@@ -12,15 +12,7 @@ arg = sys.argv[-1]
 if not path.exists(OUTDIR):
 	mkdir(OUTDIR)
 
-chars = []
-chdir('ML/data')
-for d in listdir('.'):
-	chdir(d)
-	for url in listdir('.'):
-		char = Char(d, path.abspath(url))
-		chars += [char]
-	chdir('..')
-chdir('../..')
+chars = getCharArray('ML')
 
 (wave_data, framerate) = getSignal(arg)
 
@@ -38,7 +30,7 @@ for i in range(0, len(bp)-1):
 		print("%d inactive" % i)
 		continue # or add some cirtain thing
 	char = Char.createFromSig(y, framerate)
-	c = kNN(chars, char)
+	c = classify(chars, char)
 	clip_list += [c.getVideoInfo()]
 	call(['cp', c.url, 'matched%d.wav' % i])
 	scipy.io.wavfile.write('%d.wav'%i, framerate, y)
