@@ -3,7 +3,7 @@ import scipy
 import librosa
 import numpy as np
 import wave
-from os import path
+from os import path, listdir
 
 NMFCC = 13
 K = 7
@@ -126,7 +126,14 @@ def classify(chars, char):
 	return d.getClassifiedChar()
 
 def getCharArray(url):
-	f = open(path.join(url, 'label'))
+	fn = path.join(url, 'label')
+	chars = []
+	if not path.exists(fn):
+		for name in listdir(path.join(url, 'data')):
+			p = path.join(url, 'data', name)
+			chars += [Char(None, path.abspath(p))]
+		return chars
+	f = open(fn)
 	s = f.read()
 	a = s.split()
 	chars = []
