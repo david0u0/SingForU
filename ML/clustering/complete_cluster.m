@@ -3,7 +3,7 @@ clear all
 clc
 load distmtx.mat
 load urls
-threshold = 21;
+threshold = 26;
 
 %% get distant matrix
 % convert back to the format that linkage can process

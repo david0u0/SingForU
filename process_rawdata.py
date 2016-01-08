@@ -112,5 +112,3 @@ if __name__ == '__main__':
             t_name = os.path.join(PROCESSDIR, name, "%d_%d_%s" % (bp[i], bp[i+1], name))      
             scipy.io.wavfile.write(t_name, framerate, y)
         print("processing %s DONE!" % name)
-
-        pl.show()

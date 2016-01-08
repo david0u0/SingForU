@@ -86,44 +86,33 @@ def getDist(p1, p2):
 def getDTW(mfcc1, mfcc2): #tail free!?
 	n = len(mfcc1.T)
 	m = len(mfcc2.T)
-	d = np.zeros(shape=(n, m))-1
-	cnt = np.zeros(shape=(n, m))-1
-	recursiveGetDTW(n-1, m-1, d, cnt, mfcc1, mfcc2)
-
+	if m > n: # I want n to be bigger!
+		[mfcc1, mfcc2] = [mfcc2, mfcc1]
+		[m, n] = [n, m]
+	d = np.zeros(shape=(n, m)) + np.inf
+	wall = int(m/2)
+	new_n = m-1+wall
+	if new_n > n-1:
+		new_n = n-1
+	recursiveGetDTW(new_n, m-1, d, mfcc1, mfcc2, wall)
 	mini = np.inf
-	for i in range(0, n):
+	for i in range(0, new_n):
 		mini = min(mini, d[i][m-1])
 	for i in range(0, m):
 		mini = min(mini, d[n-1][i])
-	return mini
+	return mini/(m+n+1)
 
-def recursiveGetDTW(i, j, d, cnt, mfcc1, mfcc2):
-	if i < 0 or j < 0:
+def recursiveGetDTW(i, j, d, mfcc1, mfcc2, wall):
+	if abs(i-j) > wall or i < 0 or j < 0:
 		return np.inf
 	if i == j and i == 0:
-		cnt[0][0] = 0
 		return 0
-	if d[i][j] > 0:
+	if d[i][j] != np.inf:
 		return d[i][j]
-
-	a = recursiveGetDTW(i-1, j, d, cnt, mfcc1, mfcc2)
-	b = recursiveGetDTW(i, j-1, d, cnt, mfcc1, mfcc2)
-	c = recursiveGetDTW(i-1, j-1, d, cnt, mfcc1, mfcc2)
-	dist = getDist(mfcc1.T[i], mfcc2.T[j])
-	if i > 0:
-		a = (cnt[i-1][j]*a + dist)/(1+cnt[i-1][j])
-		if j > 0:
-			c = (cnt[i-1][j-1]*c + dist)/(1+cnt[i-1][j-1])
-	if j > 0:
-		b = (cnt[i][j-1]*b + dist)/(1+cnt[i][j-1])
-	d[i][j] = min(a, b, c)
-	index = [a, b, c].index(d[i][j])
-	if index == 0:
-		cnt[i][j] = cnt[i-1][j] + 1
-	elif index == 1:
-		cnt[i][j] = cnt[i][j-1] + 1
-	else:
-		cnt[i][j] = cnt[i-1][j-1] + 1
+	a = recursiveGetDTW(i-1, j, d, mfcc1, mfcc2, wall)
+	b = recursiveGetDTW(i, j-1, d, mfcc1, mfcc2, wall)
+	c = recursiveGetDTW(i-1, j-1, d, mfcc1, mfcc2, wall)
+	d[i][j] = min(a, b, c) + getDist(mfcc1.T[i], mfcc2.T[j])
 	return d[i][j]
 
 def classify(chars, char):

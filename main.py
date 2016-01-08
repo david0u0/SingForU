@@ -9,6 +9,7 @@ from os import path, mkdir, chdir, listdir
 OUTDIR = 'output'
 
 arg = sys.argv[-1]
+visualize = (len(sys.argv) > 3)
 if not path.exists(OUTDIR):
 	mkdir(OUTDIR)
 
@@ -17,9 +18,9 @@ chars = getCharArray('ML')
 (wave_data, framerate) = getSignal(arg)
 
 print('===')
-(active, window) = getActivity(wave_data, framerate, True)
+(active, window) = getActivity(wave_data, framerate, visualize)
 
-bp = breakDown(wave_data, framerate, True)
+bp = breakDown(wave_data, framerate, visualize)
 bp = bp + [len(wave_data)]
 chdir(OUTDIR)
 clip_list = []

@@ -3,8 +3,9 @@ from features import *
 import os
 
 CDATA = 'clustered_data'
-if not os.path.exists(CDATA):
-	os.mkdir(CDATA)
+if os.path.exists(CDATA):
+	call(['rm', CDATA, '-rf'])
+os.mkdir(CDATA)
 chars = getCharArray('.')
 
 os.chdir(CDATA)
