@@ -9,8 +9,8 @@ NMFCC = 13
 K = 7
 
 class Char:
-	def __init__(self, name, url):
-		self.name = name.encode('big5')
+	def __init__(self, label, url):
+		self.label = label
 		self.url = url
 		(y, fs) = getSignal(url)	
 		self.mfcc = getMFCC(y, fs)
@@ -27,18 +27,36 @@ class Char:
 	@staticmethod
 	def createFromSig(y, fs):
 		t = type('Char', (), {})()
-		t.name = 'unknown'
+		t.label = 'unknown'
 		t.url = ''
 		t.mfcc = getMFCC(y, fs)
 		return t
 
-class CharPair:
-	def __init__(self, c1, c2):
-		self.label = (c1.name == c2.name)
-		self.url1 = c1.url
-		self.url2 = c2.url
-		self.dist = getDTW(c1.mfcc, c2.mfcc)
-		print("%f %s %s %s" % (self.dist, c1.name, c2.name, self.label))
+class Dictionary:
+	def __init__(self):
+		self.max = {}
+		self.min = {}
+		self.min_chars = {}
+	def addChar(self, char, dist):
+		label = char.label
+		if label not in self.max:
+			self.max[label] = dist
+			self.min[label] = dist
+			self.min_chars[label] = char
+		else:
+			if dist > self.max[label]:
+				self.max[label] = dist
+			elif dist < self.min[label]:
+				self.min[label] = dist
+				self.min_chars[label] = char
+	def getClassifiedChar(self):
+		min_max_dist = np.inf
+		classified_char = None
+		for k in self.max:
+			if(self.max[k] < min_max_dist):
+				min_max_dist = self.max[k]
+				classified_char = self.min_chars[k]
+		return classified_char
 
 def getSignal(url):
 	f = wave.open(url, "rb")
@@ -108,48 +126,25 @@ def recursiveGetDTW(i, j, d, cnt, mfcc1, mfcc2):
 		cnt[i][j] = cnt[i-1][j-1] + 1
 	return d[i][j]
 
-def kNN(chars, char):
-	buff = [[np.inf, None] for i in range (0, K)]
-	for c in chars:
-		if c.url == char.url:
-			continue
-		dist = getDTW(c.mfcc, char.mfcc)
-		maxb = max(buff, key=lambda x : x[0])
-		if(maxb[0] > dist):
-			maxb[0] = dist
-			maxb[1] = c
-	d = {}
-	chars = {}
-	for b in buff:
-		name = b[1].name
-		if name not in d:
-			d[name] = 0
-			chars[name] = b[1]
-		d[name] += 1.0/b[0]
-	maxd = -np.inf
-	maxkey = None
-	for key in d:
-		if(d[key] > maxd):
-			maxd = d[key]
-			maxkey = key
-	return chars[key]
 def classify(chars, char):
-	d = {}
+	d = Dictionary()
 	cnt = 0
-	name = None
+	label = None
 	for c in chars:
 		if c.url == char.url:
 			continue
 		dist = getDTW(c.mfcc, char.mfcc)
-		if c.name not in d:
-			if name:
-				d[name] /= cnt
-			d[c.name] = 0
-			cnt = 0
-		cnt += 1
-		name = c.name
-		d[name] += dist
+		d.addChar(c, dist)
+	return d.getClassifiedChar()
 
-	for k in d:
-		print("%s, %f" % (k, d[k]))
-	print("%s, %f" % (char.name, d[char.name]))
+def getCharArray(url):
+	f = open(path.join(url, 'label'))
+	s = f.read()
+	a = s.split(' ')
+	chars = []
+	for i in range(0, len(a), 2):
+		fn = path.join(url, 'data', a[i])
+		p = path.abspath(fn)
+		label = int(a[i+1])
+		chars += [Char(label, p)]
+	return chars
