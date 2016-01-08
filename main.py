@@ -22,16 +22,7 @@ for d in listdir('.'):
 	chdir('..')
 chdir('../..')
 
-f = wave.open(arg, "rb")
-params = f.getparams()
-nchannels, sampwidth, framerate, nframes = params[:4]
-str_data = f.readframes(nframes)
-f.close()
-wave_data = np.fromstring(str_data, dtype=np.short)
-if nchannels == 2:
-    wave_data.shape = -1, 2
-    wave_data = wave_data.T
-    wave_data = wave_data[0]
+(wave_data, framerate) = getSignal(arg)
 
 print('===')
 (active, window) = getActivity(wave_data, framerate)
@@ -39,6 +30,7 @@ print('===')
 bp = breakDown(wave_data, framerate)
 bp = bp + [len(wave_data)]
 chdir(OUTDIR)
+clip_list = []
 for i in range(0, len(bp)-1):
 	y = wave_data[bp[i]:bp[i+1]]
 	a = active[int(bp[i]/window):int(bp[i+1]/window)]
@@ -47,6 +39,9 @@ for i in range(0, len(bp)-1):
 		continue # or add some cirtain thing
 	char = Char.createFromSig(y, framerate)
 	c = kNN(chars, char)
+	clip_list += [c.getVideoInfo()]
 	call(['cp', c.url, 'matched%d.wav' % i])
 	scipy.io.wavfile.write('%d.wav'%i, framerate, y)
 	print("%d matched" % i)
+chdir('..')
+videoMergeAPI(clip_list)

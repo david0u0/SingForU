@@ -16,8 +16,8 @@ def getActivity(y, fs, visualize=False):
 		tmp = abs(tmp[0:window/2])
 		#smf.append(getSMF(tmp))
 		f.append(getF(tmp))
-	min_e = min(energy[1:])
-	min_f = min(f[1:])
+	min_e = min(energy[1:-1])
+	min_f = min(f[1:-1])
 	#min_s = min(smf[1:])
 	thresh_e = ENERGY_PRIME_THRES*np.log10(min_e)
 	thresh_f = F_PRIME_THRES
@@ -66,7 +66,7 @@ def getActivity(y, fs, visualize=False):
 		pl.subplot(514)
 		time = np.arange(0, len(y))*1.0/fs
 		pl.plot(time, y)
-		pl.show(block=False)
+		pl.show()
 	return (active, window)
 
 def getEnergy(y):

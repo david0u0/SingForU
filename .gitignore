@@ -1,4 +1,4 @@
-processed_data
+segmented_data/
 *.pyc
 test*
 output/

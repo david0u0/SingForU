@@ -22,10 +22,11 @@ class Char:
 		[start, end, video] = p.split('_')
 		start = float(start)/self.fs
 		end = float(end)/self.fs
-		return (start, end, video+'.mp4')
+		video = video.split('.')[0] + '.mp4'
+		return (start, end, video)
 	@staticmethod
 	def createFromSig(y, fs):
-		t = type('test', (), {})()
+		t = type('Char', (), {})()
 		t.name = 'unknown'
 		t.url = ''
 		t.mfcc = getMFCC(y, fs)

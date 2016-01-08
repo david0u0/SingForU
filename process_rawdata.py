@@ -4,15 +4,18 @@ import wave
 import pylab as pl
 import numpy as np
 import scipy.io.wavfile
-import librosa
+import sys
+from voice_activity import isActive, getActivity
+sys.path.append('ML')
+from features import *
 
 DATADIR = 'rawdata'
-PROCESSDIR = 'processed_data'
+PROCESSDIR = 'segmented_data'
 MAXWORDS = 1
 NMFCC = 55
 WINDOW = 100
 MOVINGAVG = 30
-INTERVAL = 0.2 # at least 0.1 sec a word?
+INTERVAL = 0.1 # at least 0.1 sec a word?
 MAX_INTERVAL = 0.8
 THRESHOLD = 0.75
 OFFSET = 1000 # moving average induces a phase shift
@@ -61,7 +64,7 @@ def breakDown(wave_data, fs, dovisualize=False):
     interval = int(fs*INTERVAL/WINDOW)
     max_interval = int(fs*MAX_INTERVAL/WINDOW)
     threshold = getThreshold(energy, interval)
-    bp = [0]
+    bp = [OFFSET/WINDOW]
     i = interval/2
     while(i < len(energy) - interval/2):
         if(i-bp[-1] > max_interval):
@@ -83,6 +86,8 @@ def breakDown(wave_data, fs, dovisualize=False):
     return bp
 
 if __name__ == '__main__':
+    if not os.path.exists(PROCESSDIR):
+        mkdir(PROCESSDIR)
     data = []
     for (dirpath, dirnames, filenames) in os.walk(DATADIR):
         data.extend(filenames)
@@ -94,34 +99,18 @@ if __name__ == '__main__':
         ext = name.split('.')[-1]
         if ext != 'wav':
             continue
-        
-        f = wave.open(os.path.join(DATADIR, name), "rb")
-        params = f.getparams()
-        nchannels, sampwidth, framerate, nframes = params[:4]
-        str_data = f.readframes(nframes)
-        f.close()
-        wave_data = np.fromstring(str_data, dtype=np.short)
-        if nchannels == 2:
-            wave_data.shape = -1, 2
-            wave_data = wave_data.T
-            wave_data = wave_data[0]
-
-        bp = breakDown(wave_data, framerate)
-        bp = [0] + bp + [len(wave_data)]
+        (wave_data, framerate) = getSignal(os.path.join(DATADIR, name))
+        (active, window) = getActivity(wave_data, framerate, True)
+        bp = breakDown(wave_data, framerate, True)
+        bp = bp + [len(wave_data)]
         os.makedirs(os.path.join(PROCESSDIR, name))
         for i in range(0, len(bp)-1):
-            left = bp[i]
-            for j in range(1, MAXWORDS+1):
-                if i+j >= len(bp):
-                    break
-                right = bp[i+j]
-                out = np.int16(wave_data[left:right])
-                t_name = os.path.join(PROCESSDIR, name, "%d_%d_%d" % (left, right, j))      
-                scipy.io.wavfile.write(t_name+'.'+ext, framerate, out)
-                mfcc = librosa.feature.mfcc(out, framerate, n_mfcc=NMFCC)
-                f = open(t_name, 'w')
-                for e in mfcc:
-                    f.write(','.join([str(g) for g in e]))
-                    f.write('\n')
-                f.close()
+            a = active[int(bp[i]/window):int(bp[i+1]/window)]
+            if not isActive(a):
+                continue
+            y = wave_data[bp[i]:bp[i+1]]
+            t_name = os.path.join(PROCESSDIR, name, "%d_%d_%s" % (bp[i], bp[i+1], name))      
+            scipy.io.wavfile.write(t_name, framerate, y)
         print("processing %s DONE!" % name)
+
+        pl.show()
