@@ -3,3 +3,4 @@ segmented_data/
 test*
 output/
 *.asv
+output*
