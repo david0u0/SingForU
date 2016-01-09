@@ -3,7 +3,7 @@ import pylab as pl
 
 LEN = 0.01 # sec
 ENERGY_PRIME_THRES = 10**5
-F_PRIME_THRES = 50
+F_PRIME_THRES = 2
 SMF_PRIME_THRES = 7
 
 def getActivity(y, fs, visualize=False):
@@ -28,7 +28,7 @@ def getActivity(y, fs, visualize=False):
 		count = 0
 		if(energy[i]-min_e >= thresh_e):
 			count += 1
-		if(f[i]-min_f <= thresh_f):
+		if(f[i]-min_f >= thresh_f):
 			count += 1
 		'''if(smf[i]-min_s >= thresh_s):
 			count += 1'''

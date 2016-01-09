@@ -71,11 +71,11 @@ def breakDown(wave_data, fs, dovisualize=False):
             bp += [i]
             i += interval
         elif(energy[i] < threshold[i]):
-            min_i = findMin(energy, i-interval/2, i+interval/2)
+            min_i = findMin(energy, int(i-interval/2), int(i+interval/2))
             if(min_i == i):
                 bp += [i]
                 i += interval
-            elif(min_i > i):
+            elif(min_i > i and energy[min_i] < threshold[min_i]):
                 i = min_i
                 bp += [i]
                 i += interval
