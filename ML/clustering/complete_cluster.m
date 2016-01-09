@@ -3,7 +3,7 @@ clear all
 clc
 load distmtx.mat
 load urls
-threshold = 19;
+threshold = 18;
 
 threshold = threshold + 1;
 %% get distant matrix
@@ -12,7 +12,7 @@ threshold = threshold + 1;
 distmtx = squareform(distmtx);
 
 % construct the hierarchical cluster tree
-Z = linkage(distmtx, 'complete');
+Z = linkage(distmtx, 'average');
 dendrogram(Z,0)
 
 %% initialize cluster array

@@ -34,28 +34,30 @@ class Char:
 
 class Dictionary:
 	def __init__(self):
-		self.max = {}
-		self.min = {}
-		self.min_chars = {}
+		self.sum = {}
+		self.cnt = {}
+		self._min = {}
+		self._min_chars = {}
 	def addChar(self, char, dist):
 		label = char.label
-		if label not in self.max:
-			self.max[label] = dist
-			self.min[label] = dist
-			self.min_chars[label] = char
+		if label not in self._min:
+			self.sum[label] = dist
+			self.cnt[label] = 1
+			self._min[label] = dist
+			self._min_chars[label] = char
 		else:
-			if dist > self.max[label]:
-				self.max[label] = dist
-			elif dist < self.min[label]:
-				self.min[label] = dist
-				self.min_chars[label] = char
+			self.sum[label] += dist
+			self.cnt[label] += 1
+			if dist < self._min[label]:
+				self._min[label] = dist
+				self._min_chars[label] = char
 	def getClassifiedChar(self):
-		min_max_dist = np.inf
+		min_avg_dist = np.inf
 		classified_char = None
-		for k in self.max:
-			if(self.max[k] < min_max_dist):
-				min_max_dist = self.max[k]
-				classified_char = self.min_chars[k]
+		for k in self._min:
+			if(self.sum[k]/self.cnt[k] < min_avg_dist):
+				min_avg_dist = self.sum[k]/self.cnt[k]
+				classified_char = self._min_chars[k]
 		return classified_char
 
 def getSignal(url):
@@ -72,7 +74,10 @@ def getSignal(url):
 	return (y, framerate)
 
 def getMFCC(y, framerate, path=None):
-	return librosa.feature.mfcc(y, framerate, n_mfcc=NMFCC)
+	mfcc = librosa.feature.mfcc(y, framerate, n_mfcc=NMFCC)
+	mfcc_delta = librosa.feature.delta(mfcc)
+	mfcc_2delta = librosa.feature.delta(mfcc_delta)
+	return mfcc + mfcc_delta*0.6 + mfcc_2delta*0.3
 
 def getDist(p1, p2):
 	#Both of dimention NMFCC
