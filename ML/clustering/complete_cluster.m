@@ -3,7 +3,7 @@ clear all
 clc
 load distmtx.mat
 load urls
-threshold = 18;
+threshold = 10;
 
 threshold = threshold + 1;
 %% get distant matrix

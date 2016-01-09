@@ -1,12 +1,13 @@
 from subprocess import call
 from features import *
 import os
+import sys
 
-CDATA = 'clustered_data'
+CDATA = 'clustered_'+sys.argv[-1]
 if os.path.exists(CDATA):
 	call(['rm', CDATA, '-rf'])
 os.mkdir(CDATA)
-chars = getCharArray('.')
+chars = getCharArray('.', sys.argv[-1])
 
 os.chdir(CDATA)
 for c in chars:

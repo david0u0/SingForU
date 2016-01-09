@@ -130,12 +130,12 @@ def classify(chars, char):
 		d.addChar(c, dist)
 	return d.getClassifiedChar()
 
-def getCharArray(url):
-	fn = path.join(url, 'label')
+def getCharArray(url, data_dir='data'):
+	fn = path.join(url, data_dir, 'label')
 	chars = []
 	if not path.exists(fn):
-		for name in listdir(path.join(url, 'data')):
-			p = path.join(url, 'data', name)
+		for name in listdir(path.join(url, data_dir)):
+			p = path.join(url, data_dir, name)
 			chars += [Char(None, path.abspath(p))]
 		return chars
 	f = open(fn)
@@ -143,7 +143,7 @@ def getCharArray(url):
 	a = s.split()
 	chars = []
 	for i in range(0, len(a), 2):
-		fn = path.join(url, 'data', a[i])
+		fn = path.join(url, data_dir, a[i])
 		p = path.abspath(fn)
 		label = int(a[i+1])
 		chars += [Char(label, p)]

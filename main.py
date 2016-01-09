@@ -14,7 +14,7 @@ if path.exists(OUTDIR):
 	subprocess.call(['rm', OUTDIR, '-rf'])
 mkdir(OUTDIR)
 
-chars = getCharArray('ML')
+chars = getCharArray('ML', sys.argv[-2])
 
 (wave_data, framerate) = getSignal(arg)
 

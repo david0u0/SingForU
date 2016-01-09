@@ -7,7 +7,7 @@ import sys
 sys.path.append('..')
 from features import *
 
-chars = getCharArray('..')
+chars = getCharArray('..', sys.argv[-1])
 
 # save .mat
 size = len(chars)
