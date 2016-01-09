@@ -24,7 +24,6 @@ print('===')
 bp = breakDown(wave_data, framerate, True)
 bp = bp + [len(wave_data)]
 chdir(OUTDIR)
-clip_list = []
 for i in range(0, len(bp)-1):
 	y = wave_data[bp[i]:bp[i+1]]
 	a = active[int(bp[i]/window):int(bp[i+1]/window)]
@@ -33,9 +32,5 @@ for i in range(0, len(bp)-1):
 		continue # or add some cirtain thing
 	char = Char.createFromSig(y, framerate)
 	c = classify(chars, char)
-	clip_list += [c.getVideoInfo()+[bp[i]*1.0/framerate]]
-	call(['cp', c.url, 'matched%d.wav' % i])
 	scipy.io.wavfile.write('%d.wav'%i, framerate, y)
-	print('%d matched' % i)
-chdir('..')
-videoMergeAPI(clip_list)
+	print(c.label)
