@@ -3,7 +3,7 @@ clear all
 clc
 load distmtx.mat
 load urls
-threshold = 26;
+threshold = 11;
 
 %% get distant matrix
 % convert back to the format that linkage can process
@@ -73,6 +73,7 @@ for ii=1:sizeC
        label = label + 1;
    end
 end
+fclose(fileID)
 
 
 %% plot the result

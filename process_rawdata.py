@@ -15,8 +15,8 @@ MAXWORDS = 1
 NMFCC = 55
 WINDOW = 100
 MOVINGAVG = 30
-INTERVAL = 0.1 # at least 0.1 sec a word?
-MAX_INTERVAL = 0.8
+INTERVAL = 0.2 # at least 0.2 sec a word?
+MAX_INTERVAL = 1
 THRESHOLD = 0.75
 OFFSET = 1000 # moving average induces a phase shift
 

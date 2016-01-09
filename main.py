@@ -5,12 +5,14 @@ import sys
 sys.path.append('ML')
 from features import *
 from os import path, mkdir, chdir, listdir
+import subprocess
 
 OUTDIR = 'output'
 
 arg = sys.argv[-1]
-if not path.exists(OUTDIR):
-	mkdir(OUTDIR)
+if path.exists(OUTDIR):
+	subprocess.call(['rm', OUTDIR, '-rf'])
+mkdir(OUTDIR)
 
 chars = getCharArray('ML')
 
@@ -31,9 +33,9 @@ for i in range(0, len(bp)-1):
 		continue # or add some cirtain thing
 	char = Char.createFromSig(y, framerate)
 	c = classify(chars, char)
-	clip_list += [c.getVideoInfo().append(bp[i])]
+	clip_list += [c.getVideoInfo()+[bp[i]]]
 	call(['cp', c.url, 'matched%d.wav' % i])
 	scipy.io.wavfile.write('%d.wav'%i, framerate, y)
-	print("%d matched" % i)
+	print('%d matched' % i)
 chdir('..')
 videoMergeAPI(clip_list)

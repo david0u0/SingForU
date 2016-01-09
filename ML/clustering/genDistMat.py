@@ -7,12 +7,7 @@ import sys
 sys.path.append('..')
 from features import *
 
-chars = []
-chdir('../data')
-for url in listdir('.'):
-	char = Char(None, path.abspath(url))
-	chars += [char]
-chdir('../clustering')
+chars = getCharArray('..')
 
 # save .mat
 size = len(chars)
@@ -22,7 +17,7 @@ urls = []
 
 for row_i in range(size):
 	char1 = chars[row_i]
-	urls.append(char1.getFilename)
+	urls.append(char1.getFilename())
 	for col_j in range(row_i+1, size):
 		char2 = chars[col_j]
 		dist = getDTW(char1.mfcc, char2.mfcc)
