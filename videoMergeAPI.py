@@ -4,13 +4,11 @@ from os import path
 
 VIDEODIR = 'video_data'
 
-global temp_pic
 def videoMergeAPI(clipList, outputName='output.mp4'):
-	global temp_pic
 	num_clips = len(clipList)
 	merged_video = []
 
-	for i in range(2,num_clips):
+	for i in range(1,num_clips):
 		# this clip's time
 		ctime = clipList[i][3]
 		
@@ -43,5 +41,5 @@ def videoMergeAPI(clipList, outputName='output.mp4'):
 	merged_video.append(temp_video_clip)
 
 	result = mpy.concatenate_videoclips(merged_video)
-	result.write_videofile(outputName)
+	result.write_videofile(outputName, fps=24)
 	

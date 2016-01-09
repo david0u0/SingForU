@@ -3,8 +3,9 @@ clear all
 clc
 load distmtx.mat
 load urls
-threshold = 11;
+threshold = 19;
 
+threshold = threshold + 1;
 %% get distant matrix
 % convert back to the format that linkage can process
 [numNode, ~] = size(distmtx);
