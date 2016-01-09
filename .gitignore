@@ -1,5 +1,5 @@
 segmented_data/
 *.pyc
-test*
+success*
 output/
 *.asv
